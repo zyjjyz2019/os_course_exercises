@@ -59,7 +59,7 @@ NOTICE
 
 ### 7.4 了解UCORE建立段/页表
 
-1. 分析MMU的使能过程，尽可能详细地分析在执行进入保护械的代码“movl %eax, %cr0 ; ljmp $CODE_SEL, $0x0”时，CPU的状态和寄存器内容的变化。
+1. 分析MMU的使能过程，尽可能详细地分析在执行进入保护械的代码“movl %eax, %cr0 ; ljmp $CODE_SEL, ​$0x0”时，CPU的状态和寄存器内容的变化。
 
 2. 分析页表的建立过程；
 
@@ -154,7 +154,22 @@ va 0xce6c3f32, pa 0x007d4f32
 va 0xcd82c07c, pa 0x0c20907c, pde_idx 0x00000336, pde_ctx  0x00037003, pte_idx 0x0000002c, pte_ctx  0x0000c20b
 ```
 >> 注意：上述参考输出只是表示了正确的格式，其数值并不正确。
----
+```python
+def trans(va, pa):
+    pde_idx = va >> 22
+    pte_idx = (va >> 12) & 0x3ff
+    pde_ctx = ((pde_idx - 0x300 + 1) << 12) + 3
+    pte_ctx = ((pa >> 12) << 12) + 3
+    print('va 0x%08x, pa 0x%08x, ' % (va, pa) +
+          'pde_idx 0x%08x, pde_ctx  0x%08x, ' % (pde_idx, pde_ctx) +
+          'pte_idx 0x%08x, pte_ctx  0x%08x' % (pte_idx, pte_ctx))
+    return pde_idx, pte_idx, pde_ctx, pte_ctx
+    
+trans(0xcd82c07c, 0x0c20907c)
+```
+
+
+
 (5) 尝试在内存为256字节的OP-CPU机器上，设计一个支持自映射的内存空间部局。说明其页表起始逻辑地址、一级和二级虚拟地址计算公式。
 
 ## 开放思考题
